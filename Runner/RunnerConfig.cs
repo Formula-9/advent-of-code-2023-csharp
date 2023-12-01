@@ -14,5 +14,5 @@ public class RunnerConfig
         ConfigurationRoot = new ConfigurationBuilder().SetBasePath(Environment.CurrentDirectory).AddJsonFile("config.json").Build();
     }
 
-    public Cookie GetAdventOfCodeCookie() => new("session", ConfigurationRoot["cookie"]);
+    public Cookie GetAdventOfCodeCookie() => new("session", ConfigurationRoot["cookie"], "/", ".adventofcode.com");
 }
