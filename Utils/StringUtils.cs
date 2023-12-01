@@ -56,4 +56,13 @@ public static class StringUtils
                 .ToArray();
         }
     }
+
+    public static string ReplaceAll(this string s, IDictionary<string, string> replacements)
+    {
+        foreach (var kvp in replacements)
+        {
+            s = s.Replace(kvp.Key, kvp.Value);
+        }
+        return s;
+    }
 }

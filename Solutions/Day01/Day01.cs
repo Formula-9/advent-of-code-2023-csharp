@@ -6,54 +6,26 @@ namespace Formula9.AdventOfCode.Solutions2023.Day01;
 public class Day_01 : AdventOfCodeProblem
 {
     public Day_01() : base(2023, 1) { }
-    
-    private static readonly IDictionary<string, int> Digits = new Dictionary<string, int>()
+
+    private static readonly IDictionary<string, string> Digits = new Dictionary<string, string>()
     {
-        { "one",    1 },
-        { "two",    2 },
-        { "three",  3 },
-        { "four",   4 },
-        { "five",   5 },
-        { "six",    6 },
-        { "seven",  7 },
-        { "eight",  8 },
-        { "nine",   9 }
+        { "one",    "o1e" },
+        { "two",    "t2o" },
+        { "three",  "t3e" },
+        { "four",   "f4r" },
+        { "five",   "f5e" },
+        { "six",    "s6x" },
+        { "seven",  "s7n" },
+        { "eight",  "e8t" },
+        { "nine",   "n9e" }
     }.ToImmutableDictionary();
-
-    private enum MatchType
-    {
-        None,
-        Digit,
-        ThreeLetterDigit,
-        FourLetterDigit,
-        FiveLetterDigit
-    }
-
-    private readonly record struct DigitMatch(MatchType Type, string String);
-
-    private static DigitMatch FindMatch(string s)
-    {
-        if (char.IsDigit(s.First()))                        return new(MatchType.Digit,             new string(s[0], 1));
-        if (s.Length >= 5 && Digits.ContainsKey(s[..5]))    return new(MatchType.FiveLetterDigit,   s[..5]);
-        if (s.Length >= 4 && Digits.ContainsKey(s[..4]))    return new(MatchType.FourLetterDigit,   s[..4]);
-        if (s.Length >= 3 && Digits.ContainsKey(s[..3]))    return new(MatchType.ThreeLetterDigit,  s[..3]);
-        return new(MatchType.None, string.Empty);
-    }
-    
-    private static int ConvertToDigit(DigitMatch m) => m.Type == MatchType.Digit ? m.String.First() - '0' : Digits[m.String];
 
     private static int FindDigitPair(string s)
     {
-        List<DigitMatch> matches = new();
-        for (int i = 0; i < s.Length; i++)
-        {
-            var match = FindMatch(s[i..]);
-            if (match.Type != MatchType.None)
-            {
-                matches.Add(match);
-            }
-        }
-        return ConvertToDigit(matches.First()) * 10 + ConvertToDigit(matches.Last());
+        string altered  = s.ReplaceAll(Digits);
+        char first      = altered.First(char.IsDigit);
+        char last       = altered.Last(char.IsDigit);
+        return (first - '0') * 10 + (last - '0');
     }
 
     public override ValueTask<string> Solve_1() => new(Input.SplitByNewline().Select(l => int.Parse(new char[] { l.First(char.IsDigit), l.Last(char.IsDigit) })).Sum().ToString());
