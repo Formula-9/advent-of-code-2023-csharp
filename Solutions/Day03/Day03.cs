@@ -91,15 +91,11 @@ public class Day_03 : AdventOfCodeProblem
     public int FindRatios(Symbol s)
     {
         List<Symbol> neighbors = FindNeighbors(s.X, s.Y, 1).Where(s => char.IsDigit(s.Character)).ToList();
-        List<Number> hash      = Numbers.Where(n => neighbors.Any(neighbor => n.IsPositionPartOfNumber(neighbor.X, neighbor.Y))).ToList();
-        int value = hash.Count == 2 ? hash.First().Value * hash.Last().Value : 0;
-        return value;
+        List<Number> numbers   = Numbers.Where(n => neighbors.Any(neighbor => n.IsPositionPartOfNumber(neighbor.X, neighbor.Y))).ToList();
+        return numbers.Count == 2 ? numbers.First().Value * numbers.Last().Value : 0;
     }
 
-    public override ValueTask<string> Solve_2()
-    {
-        return new(Stars.Select(FindRatios).Sum().ToString());
-    }
+    public override ValueTask<string> Solve_2() => new(Stars.Select(FindRatios).Sum().ToString());
 }
 
 public readonly record struct Number(int X, int Y, int Value, int Length)
