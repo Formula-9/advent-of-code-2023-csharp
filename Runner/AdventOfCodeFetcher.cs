@@ -20,6 +20,11 @@ public class AdventOfCodeFetcher
         string result = FetchInputForDayFromWeb(year, day);
         if (!string.IsNullOrEmpty(saveToPath))
         {
+            string dirName = Path.GetDirectoryName(saveToPath);
+            if (!Directory.Exists(dirName))
+            {
+                Directory.CreateDirectory(dirName);
+            }
             using var stream = File.OpenWrite(saveToPath);
             using var streamWriter = new StreamWriter(stream);
             streamWriter.WriteLine(result);
