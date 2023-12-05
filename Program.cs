@@ -13,9 +13,5 @@ public class Program
             options.ClearConsole = true;
             options.ElapsedTimeFormatSpecifier = "F3";
         }).Wait();
-        // Day_05 d = new();
-        // var x = d.Solve_1().AsTask().Result;
-        // Console.WriteLine(x);
-        // var y = d.Solve_2().AsTask().Result;
     }
 }
