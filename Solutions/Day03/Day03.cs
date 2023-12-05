@@ -14,11 +14,6 @@ public class Day_03 : AdventOfCodeProblem
 
     public Day_03() : base(2023, 03) 
     { 
-        FindNumbers();
-    }
-
-    public void FindNumbers()
-    {
         string[] lines = Input.SplitByNewline();
         (Height, Width) = (lines.Length, lines.First().Length);
         Numbers = new();
