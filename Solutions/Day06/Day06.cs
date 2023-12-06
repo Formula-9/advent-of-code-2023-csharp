@@ -23,14 +23,9 @@ public class Day_06 : AdventOfCodeProblem
 
     public static long CountSolutions((long time, long distance) pair)
     {
-        long solutions = 0;
-        for (long timeSpentHoldingButton = 0; timeSpentHoldingButton < pair.time; timeSpentHoldingButton++)
-        {
-            // i = speed
-            long remainingTime = pair.time - timeSpentHoldingButton;
-            solutions += ((remainingTime * timeSpentHoldingButton) > pair.distance).ToInt();
-        }
-        return solutions;
+        double firstRoot  = Math.Ceiling((-pair.time - Math.Sqrt(pair.time * pair.time - 4.0 * pair.distance)) / 2f + 0.01f);
+        double secondRoot = Math.Floor((-pair.time + Math.Sqrt(pair.time * pair.time - 4.0 * pair.distance)) / 2f - 0.01f);
+        return (long)(Math.Abs(secondRoot - firstRoot) + 1);
     }
 
     public override ValueTask<string> Solve_1() => new(TimeDistancePairs.Select(CountSolutions).Aggregate((acc, el) => acc * el).ToString());
