@@ -12,7 +12,8 @@ public class Day_06 : AdventOfCodeProblem
     { 
         var lines = Input.SplitByNewline().ToArray();
         TimeDistancePairs = GetNumbersForLine(lines.First()).Zip(GetNumbersForLine(lines.Last())).ToList();
-        FinalRound = (long.Parse(string.Join(string.Empty, GetNumbersForLine(lines.First()))), long.Parse(string.Join(string.Empty, GetNumbersForLine(lines.Last()))));
+        var finalRoundData = lines.Select(l => long.Parse(l.Replace(" ", string.Empty).Split(":").Last())).ToArray();
+        FinalRound = new(finalRoundData.First(), finalRoundData.Last());
     }
 
     private static IEnumerable<long> GetNumbersForLine(string s) =>s
