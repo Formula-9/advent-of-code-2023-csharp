@@ -15,4 +15,11 @@ public static class EnumerableUtils
         }
         return false;
     }
+
+    public static IEnumerable<T> Sort<T>(this IEnumerable<T> source, IComparer<T> comparer)
+    {
+        var lst = source.ToList();
+        lst.Sort(comparer);
+        return lst;
+    }
 }
