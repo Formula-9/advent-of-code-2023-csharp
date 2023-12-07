@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace Formula9.AdventOfCode.Utils;
 
 public static class EnumerableUtils
@@ -21,5 +23,17 @@ public static class EnumerableUtils
         var lst = source.ToList();
         lst.Sort(comparer);
         return lst;
+    }
+
+    public static long Sum<T>(this IEnumerable<T> source, Func<T, int, long> func)
+    {
+        long result = 0;
+        int count = 0;
+        foreach (T item in source)
+        {
+            result += func(item, count);
+            count++;
+        }
+        return result;
     }
 }

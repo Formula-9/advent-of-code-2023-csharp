@@ -4,89 +4,86 @@ namespace Formula9.AdventOfCode.Solutions2023.Day07;
 
 public class Day_07 : AdventOfCodeProblem
 {
-    public List<Hand> Hands { get; init; }
+    public const string Cards = "23456789TJQKA";
+    public const string PartTwoCardValues = "J23456789TQKA";
 
-    public Day_07() : base(2023, 07) 
-    { 
-        Hands = Input.SplitByNewline().Select(FromString).ToList();
-    }
+    public Day_07() : base(2023, 07) { }
 
-    private static Hand FromString(string s)
+    private static Hand FromString(string s, string cardValues)
     {
         var data = s.Split(" ");
-        return new(data.First(), long.Parse(data.Last()));
+        var nums = data.First().Select(c => cardValues.IndexOf(c) + 1).ToArray();
+        var groups = nums.GroupBy(n => n).OrderByDescending(g => g.Count()).Select(ToGroup).ToArray();
+        return new(Values: nums, Groups: groups, Bid: long.Parse(data.Last()));
     }
 
-    public override ValueTask<string> Solve_1() => new(Hands.AsEnumerable().Sort(new HandComparer()).Select((h, index) => h.Bid * (index + 1)).Sum().ToString());
+    public static char ReverseMap(int val) => PartTwoCardValues.ElementAt(val - 1);
 
-    // 252137472
-    public override ValueTask<string> Solve_2() => new("Solution 2");
-}
+    public static CardGroup ToGroup(IGrouping<int, int> group) => new(group.Key, group.Count());
 
-public class HandComparer : IComparer<Hand>
-{
-    public const string Cards = "23456789TJQKA";
-
-    public int Compare(Hand x, Hand y)
+    public static int GetHandType(Hand hand, bool discardJokers = false)
     {
-        int comparisonResult = x.GetHandType().CompareTo(y.GetHandType());
-        if (comparisonResult == 0)
+        int[] groups;
+        if (discardJokers && hand.Groups.Any(g => g.Value == 1 && g.Count >= 1 && g.Count <= 4, out var discardedGroup))
         {
-            foreach ((int leftCard, int rightCard) in x.Cards.Select(c => Cards.IndexOf(c)).Zip(y.Cards.Select(c => Cards.IndexOf(c))))
-            {
-                comparisonResult = leftCard.CompareTo(rightCard);
-                if (comparisonResult != 0) break;       
-            }
+            groups = hand.Groups.Where(x => x.Value > 1).Select(x => x.Count).OrderDescending().ToArray();
+            if (groups.Length > 0) groups[0] += discardedGroup.Count;
         }
-        return comparisonResult;
-    }
-}
-
-public class PartTwoHandComparer : IComparer<Hand>
-{
-    public const string Cards = "J23456789TQKA";
-
-    public int Compare(Hand x, Hand y)
-    {
-        int comparisonResult = x.GetHandTypeForPartTwo().CompareTo(y.GetHandTypeForPartTwo());
-        if (comparisonResult == 0)
+        else
         {
-            foreach ((int leftCard, int rightCard) in x.Cards.Select(c => Cards.IndexOf(c)).Zip(y.Cards.Select(c => Cards.IndexOf(c))))
-            {
-                comparisonResult = leftCard.CompareTo(rightCard);
-                if (comparisonResult != 0) break;       
-            }
+            groups = hand.Groups.Select(x => x.Count).OrderDescending().ToArray();
         }
-        return comparisonResult;
+        return groups switch
+        {
+            [5]             => 7,
+            [4, _]          => 6,
+            [3, 2]          => 5,
+            [3, _, _]       => 4,
+            [2, 2, _]       => 3,
+            [2, 2]          => 3,
+            [2, _, _, _]    => 2,
+            [2, _, _]       => 2,
+            [2, _]          => 2,
+            _               => 1
+        };
+    }
+
+    public override ValueTask<string> Solve_1()
+    {
+        var value = Input
+            .SplitByNewline()
+            .Select(l => FromString(l, Cards))
+            .OrderBy(h => GetHandType(h))
+            .ThenBy(h => h.Values, new IntArrayComparer())
+            .Sum((h, i) => h.Bid * (i + 1));
+        return new(value.ToString());
+    }
+
+    public override ValueTask<string> Solve_2()
+    {
+        var value = Input
+            .SplitByNewline()
+            .Select(l => FromString(l, PartTwoCardValues))
+            .OrderBy(h => GetHandType(h, discardJokers: true))
+            .ThenBy(h => h.Values, new IntArrayComparer())
+            .Sum((h, i) => h.Bid * (i + 1));
+        return new(value.ToString());
     }
 }
 
-public enum HandType
+class IntArrayComparer : IComparer<int[]>
 {
-    HighCard = 0,
-    OnePair,
-    TwoPair,
-    ThreeOfAKind,
-    FullHouse,
-    FourOfAKind,
-    FiveOfAKind,
-}
-
-public readonly record struct Hand(string Cards, long Bid)
-{
-    public HandType GetHandType()
+    public int Compare(int[]? x, int[]? y)
     {
-        var groups = Cards.GroupBy(x => x).ToList();
-        if (groups.Count == 1) return HandType.FiveOfAKind;
-        if (groups.Count == 2) return groups.Any(x => x.Count() == 4) ? HandType.FourOfAKind  : HandType.FullHouse;
-        if (groups.Count == 3) return groups.Any(x => x.Count() == 3) ? HandType.ThreeOfAKind : HandType.TwoPair;
-        return groups.Any(x => x.Count() == 2) ? HandType.OnePair : HandType.HighCard;
-    }
-
-    public HandType GetHandTypeForPartTwo()
-    {
-        int replacementCards = Cards.Count(c => c == 'J');
-        var groups = Cards.GroupBy(x => x).ToList();
+        foreach (var (l, r) in x.Zip(y))
+        {
+            int result = l.CompareTo(r);
+            if (result != 0) return result;
+        }
         return 0;
     }
 }
+
+public readonly record struct Hand(int[] Values, CardGroup[] Groups, long Bid);
+
+public readonly record struct CardGroup(int Value, int Count);
