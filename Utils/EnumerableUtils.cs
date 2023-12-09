@@ -16,13 +16,6 @@ public static class EnumerableUtils
         return false;
     }
 
-    public static IEnumerable<T> Sort<T>(this IEnumerable<T> source, IComparer<T> comparer)
-    {
-        var lst = source.ToList();
-        lst.Sort(comparer);
-        return lst;
-    }
-
     public static long Sum<T>(this IEnumerable<T> source, Func<T, int, long> func)
     {
         long result = 0;
@@ -46,24 +39,11 @@ public static class EnumerableUtils
         }
     }
 
-    public static int Move<T>(this IEnumerator<T> enumerator, int steps)
-    {
-        for (int i = 0; i < steps; i++)
-        {
-            if (!enumerator.MoveNext()) return i;
-        }
-        return steps;
-    }
-
-    public static IEnumerator<T> Move<T>(this IEnumerator<T> enumerator, int steps, out int stepsMoved)
-    {
-        stepsMoved = enumerator.Move(steps);
-        return enumerator;
-    }
-
     public static T Next<T>(this IEnumerator<T> enumerator)
     {
         enumerator.MoveNext();
         return enumerator.Current;
     }
+
+    public static double Product<T>(this IEnumerable<T> values, Func<T, double> keySelector) => values.Aggregate(1d, (acc, el) => acc * keySelector(el));
 }

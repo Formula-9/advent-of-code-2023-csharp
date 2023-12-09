@@ -49,7 +49,6 @@ public class Day_08 : AdventOfCodeProblem
         return new(steps.ToString());
     }
 
-    // 20685524831999
     public override ValueTask<string> Solve_2()
     {
         HashSet<string> startPoints = Graph.Where(kvp => kvp.Key.EndsWith("A")).Select(kvp => kvp.Key).ToHashSet();
