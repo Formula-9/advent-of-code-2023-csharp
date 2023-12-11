@@ -46,4 +46,24 @@ public static class EnumerableUtils
     }
 
     public static double Product<T>(this IEnumerable<T> values, Func<T, double> keySelector) => values.Aggregate(1d, (acc, el) => acc * keySelector(el));
+
+    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T> values, int start = 0)
+    {
+        foreach (T element in values)
+        {
+            yield return (start, element);
+            start++;
+        }
+        yield break;
+    }
+
+    public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> values, int k)
+    {
+        return k == 0 
+        ? EnumerableEx.Return(Enumerable.Empty<T>()) 
+        : values.SelectMany((e, i) => 
+            values.Skip(i + 1)
+                .Combinations(k - 1)
+                .Select(c => EnumerableEx.Return(e).Concat(c)));
+    }
 }

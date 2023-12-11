@@ -15,13 +15,16 @@ public class AdventOfCodeFetcher
         Client = new HttpClient(ClientHandler);
     }
 
+
+
     public string GetInputFromWeb(int year, int day, string saveToPath)
     {
+        ThrowIfPuzzleIsNotRevealedYet(year, day);
         string result = FetchInputForDayFromWeb(year, day);
         if (!string.IsNullOrEmpty(saveToPath))
         {
-            string dirName = Path.GetDirectoryName(saveToPath);
-            if (!Directory.Exists(dirName))
+            string? dirName = Path.GetDirectoryName(saveToPath);
+            if (dirName != null && !Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);
             }
@@ -30,6 +33,15 @@ public class AdventOfCodeFetcher
             streamWriter.WriteLine(result);
         }
         return result;
+    }
+
+    private static void ThrowIfPuzzleIsNotRevealedYet(int year, int day)
+    {
+        var date = DateTime.UtcNow;
+        if (year > date.Year || (year == date.Year && day > date.Day) || (year == date.Year && day == date.Day && date.Hour < 5))
+        {
+            throw new PuzzleNotRevealedExceptionException();
+        }
     }
 
     private string FetchInputForDayFromWeb(int year, int day)
